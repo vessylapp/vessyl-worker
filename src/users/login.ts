@@ -22,11 +22,11 @@ app.post('/', async (c) => {
     const {username, password} = body;
     const userExists = await client.findOne('vessyl', 'users', {username});
     if (!userExists) {
-        return c.text('User not found');
+        return c.json({error: 'User not found'});
     }
     const passwordIsValid = await bcrypt.compare(password, userExists.password);
     if (!passwordIsValid) {
-        return c.text('Invalid password');
+        return c.json({error: 'Invalid password'});
     }
     let jwtSecret = await client.findOne('vessyl', 'settings', {jwtSecret: {$exists : true}});
     if (!jwtSecret) {

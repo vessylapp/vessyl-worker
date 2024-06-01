@@ -22,12 +22,12 @@ app.post('/', async (c) => {
 
     const checkIfRegistrationEnabled = await client.findOne('vessyl', 'settings', {registration: true});
     if (!checkIfRegistrationEnabled) {
-        return c.text('Registration is disabled');
+        return c.json({error: 'Registration is disabled'});
     }
     const {username, password} = body;
     const userExists = await client.findOne('vessyl', 'users', {username});
     if (userExists) {
-        return c.text('User already exists');
+        return c.json({error: 'User already exists'});
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const howManyUsers = await client.find('vessyl', 'users', {}, {});
