@@ -34,6 +34,7 @@ app.post('/', async (c) => {
     const customData: any = {}
     if (howManyUsers.length === 0) {
         await client.update('vessyl', 'settings', {registration: true}, { $set: {registration: false}});
+        await client.update('vessyl', 'settings', {setup: false}, { $set: {setup: true}});
         customData.admin = true;
     }
     await client.insert('vessyl', 'users', {username, password: hashedPassword , ...customData});

@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import containers from './containers'
 import users from './users'
+import status from './status'
 
 import dotenv from 'dotenv'
 dotenv.config()
@@ -31,6 +32,7 @@ async function startApp() {
 
   app.route('/containers', containers)
   app.route('/users', users);
+  app.route('/status', status);
 
   const port = 8000
   console.log(`Server is running on port ${port}`)
