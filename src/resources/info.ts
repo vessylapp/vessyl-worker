@@ -7,7 +7,7 @@ const app = new Hono()
 app.post('/', async (c) => {
     const data = await c.req.text(); 
     const body = JSON.parse(data);
-    const {token, name, git_url, type} = body;
+    const {token, name} = body;
     const client = MongoService.getInstance();
     const jwtSecret = await client.findOne('vessyl', 'settings', {jwtSecret: {$exists : true}});
     if (!jwtSecret) {
@@ -24,11 +24,10 @@ app.post('/', async (c) => {
         return c.json({error: 'User not found'});
     }
     const resource = await client.findOne('vessyl', 'resources', {name, owner: decoded.username});
-    if (resource) {
-        return c.json({error: 'Resource already exists'})
+    if (!resource) {
+        return c.json({error: 'Resource doesnt exist'})
     }
-    await client.insert('vessyl', 'resources', {name, git_url, type, owner: decoded.username, container: {running: false}});
-    return c.json({success: true, message: 'Resource created'})
+    return c.json(resource)
 });
 
 export default app

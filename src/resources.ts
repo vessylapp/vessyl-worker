@@ -3,6 +3,9 @@ import { exec } from 'child_process'
 import jwt from 'jsonwebtoken'
 import MongoService from '../structures/mongodb'
 import newResource from './resources/new'
+import resourceSettings from './resources/settings'
+import resourceInfo from './resources/info'
+import deployResource from './resources/deploy'
 
 const app = new Hono()
 
@@ -32,5 +35,8 @@ app.post('/', async (c) => {
 })
 
 app.route('/new', newResource)
+app.route('/settings', resourceSettings)
+app.route('/info', resourceInfo)
+app.route('/deploy', deployResource)
 
 export default app
