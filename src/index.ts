@@ -4,6 +4,7 @@ import { cors } from 'hono/cors'
 import containers from './containers'
 import users from './users'
 import status from './status'
+import resources from './resources'
 
 import dotenv from 'dotenv'
 dotenv.config()
@@ -16,8 +17,8 @@ async function startApp() {
   if(!await client.dbExists('vessyl')) {
     await client.createDatabase('vessyl');    
   }
-  if(!await client.collectionExists('vessyl', 'containers')) {
-    await client.createCollection('vessyl', 'containers');
+  if(!await client.collectionExists('vessyl', 'resources')) {
+    await client.createCollection('vessyl', 'resources');
   }
   if(!await client.collectionExists('vessyl', 'users')) {
     await client.createCollection('vessyl', 'users');
@@ -33,6 +34,7 @@ async function startApp() {
   app.route('/containers', containers)
   app.route('/users', users);
   app.route('/status', status);
+  app.route('/resources', resources)
 
   const port = 8000
   console.log(`Server is running on port ${port}`)
