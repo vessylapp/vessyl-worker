@@ -1,4 +1,5 @@
 FROM ubuntu:22.04
+LABEL org.opencontainers.image.source=https://github.com/vessylapp/vessyl-worker
 RUN apt-get update && \
     apt-get install -y \
     apt-transport-https \
