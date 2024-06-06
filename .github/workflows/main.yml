@@ -20,7 +20,7 @@ jobs:
           echo "username=benjamint08" >> $GITHUB_PAT
           base64 -i $GITHUB_PAT
         env:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_PAT: ${{ secrets.GH_TOKEN }}
 
       - name: Extract tag name
         id: extract_tag
