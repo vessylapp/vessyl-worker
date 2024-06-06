@@ -18,8 +18,12 @@ jobs:
         env:
           GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract tag name
+        id: extract_tag
+        run: echo "::set-output name=tag::${GITHUB_REF#refs/tags/}"
+
       - name: Build Docker image
-        run: docker build -t ghcr.io/vessylapp/vessyl-worker:${{ github.ref }} .
+        run: docker build -t ghcr.io/vessylapp/vessyl-worker:${{ steps.extract_tag.outputs.tag }} .
 
       - name: Push Docker image to GitHub Packages
-        run: docker push ghcr.io/vessylapp/vessyl-worker:${{ github.ref }}
+        run: docker push ghcr.io/vessylapp/vessyl-worker:${{ steps.extract_tag.outputs.tag }}
