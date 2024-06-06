@@ -14,20 +14,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Login to GitHub Packages
-        run: |
-          echo "//ghcr.io" >> $GITHUB_PAT 
-          echo "username=benjamint08" >> $GITHUB_PAT
-          base64 -i $GITHUB_PAT
-        env:
-          GITHUB_PAT: ${{ secrets.GH_TOKEN }}
-
       - name: Extract tag name
         id: extract_tag
         run: echo "::set-output name=tag::${GITHUB_REF#refs/tags/}"
 
       - name: Build Docker image
         run: docker build -t ghcr.io/vessylapp/vessyl-worker:${{ steps.extract_tag.outputs.tag }} .
+
+      - name: Log in to GitHub Packages
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Push Docker image to GitHub Packages
         run: docker push ghcr.io/vessylapp/vessyl-worker:${{ steps.extract_tag.outputs.tag }}
