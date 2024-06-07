@@ -19,17 +19,17 @@ app.post('/', async (c) => {
     const client = MongoService.getInstance();
     const jwtSecret = await client.findOne('vessyl', 'settings', {jwtSecret: {$exists : true}});
     if (!jwtSecret) {
-        return c.text('JWT Secret not found');
+        return c.json({error: 'JWT Secret not found'});
     }
     let decoded : any = {};
     try {
         decoded = jwt.verify(token, jwtSecret.jwtSecret);
     } catch (err) {
-        return c.text('Invalid token');
+        return c.json({error: 'Invalid token'});
     }
     const user = await client.findOne('vessyl', 'users', {username: decoded.username});
     if (!user) {
-        return c.text('User not found');
+        return c.json({error: 'User not found'});
     }
     return new Promise((resolve, reject) => {
       exec('docker ps -a --format \'{{json .}}\'', (error, stdout, stderr) => {

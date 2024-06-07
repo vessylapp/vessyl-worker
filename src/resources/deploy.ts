@@ -43,10 +43,10 @@ app.post('/', async (c) => {
         return new Promise((resolve, reject) => {
             const buildProcess = spawn(buildCommand, { shell: true });
             buildProcess.stdout.on('data', (data) => {
-                stream.writeln(data.toString() + "\n");
+                stream.writeln(data.toString());
             });
             buildProcess.stderr.on('data', (data) => {
-                stream.writeln(data.toString() + "\n");
+                stream.writeln(data.toString());
             });
             buildProcess.on('close', async (code) => {
                 if (code !== 0) {
