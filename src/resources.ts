@@ -32,7 +32,7 @@ app.post('/', async (c) => {
     }
     let resources = await client.find('vessyl', 'resources', {owner: decoded.username}, {});
     const promises = resources.map(async (resource) => {
-        if(resource.container.container_id != null) {
+        if(resource.container.container_id !== null && resource.container.container_id !== '' && resource.container.container_id !== undefined) {
             const name = resource.container.container_id;
             const command = `docker inspect ${name}`;
             try {
