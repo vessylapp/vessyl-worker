@@ -27,7 +27,7 @@ app.post('/', async (c) => {
     if (!user) {
         return c.text('User not found');
     }
-    let buildCommand = `docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/docker.sock:/var/run/docker.sock -e TYPE=${type} -e REPO_NAME=${repo_name} vessyl-buildenv:0.0.18`
+    let buildCommand = `docker run --rm --pull always -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/docker.sock:/var/run/docker.sock -e TYPE=${type} -e REPO_NAME=${repo_name} ghcr.io/vessyl-buildenv:latest`
     return streamText(c, (stream) => {
         return new Promise((resolve, reject) => {
             const buildProcess = spawn(buildCommand, { shell: true });
