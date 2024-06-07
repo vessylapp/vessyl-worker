@@ -41,8 +41,12 @@ app.post('/', async (c) => {
                 resource.container.running = data[0].State.Running;
                 return resource;
             } catch (err) {
-                console.error(err);
+                resource.container.running = false;
+                return resource;
             }
+        } else {
+            resource.container.running = false;
+            return resource;
         }
     });
     
