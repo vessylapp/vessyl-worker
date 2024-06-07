@@ -77,7 +77,7 @@ app.post('/', async (c) => {
                     const { stdout, stderr } = await execAsync(command);
                     stream.writeln(stdout);
                     stream.writeln("Container created with name " + name);
-                    await client.update('vessyl', 'resources', {name, owner: decoded.username}, {$set: {container: {running: true, container_id: name}}});
+                    await client.update('vessyl', 'resources', {name, owner: decoded.username}, {$set: {container: {container_id: name}}});
                     resolve();
                 }, 1000);
             });

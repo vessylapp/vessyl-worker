@@ -1,11 +1,13 @@
 import { Hono } from 'hono'
-import { exec } from 'child_process'
 import jwt from 'jsonwebtoken'
 import MongoService from '../structures/mongodb'
 import newResource from './resources/new'
 import resourceSettings from './resources/settings'
 import resourceInfo from './resources/info'
 import deployResource from './resources/deploy'
+import { promisify } from 'util';
+import { exec as execCb } from 'child_process';
+const execAsync = promisify(execCb);
 
 const app = new Hono()
 
@@ -28,11 +30,23 @@ app.post('/', async (c) => {
     if (!user) {
         return c.text('User not found');
     }
-    // get all resources owned by user in db
-    // return all resources
-    const resources = await client.find('vessyl', 'resources', {owner: decoded.username}, {})
-    return c.json(resources)
-})
+    let resources = await client.find('vessyl', 'resources', {owner: decoded.username}, {});
+    const promises = resources.map(async (resource) => {
+        const name = resource.container.container_id;
+        const command = `docker inspect ${name}`;
+        try {
+            const { stdout } = await execAsync(command);
+            const data = JSON.parse(stdout);
+            resource.container.running = data[0].State.Running;
+            return resource;
+        } catch (err) {
+            console.error(err);
+        }
+    });
+    
+    resources = await Promise.all(promises);
+    return c.json(resources);
+});
 
 app.route('/new', newResource)
 app.route('/settings', resourceSettings)

@@ -5,6 +5,7 @@ import containers from './containers'
 import users from './users'
 import status from './status'
 import resources from './resources'
+import { checkForUpdates } from '../structures/checkforupdates'
 
 import dotenv from 'dotenv'
 dotenv.config()
@@ -12,6 +13,7 @@ dotenv.config()
 import MongoService from '../structures/mongodb'
 
 async function startApp() {
+  await checkForUpdates();
   const client = MongoService.getInstance();  
   await client.connect(process.env.MONGO_URI);
   if(!await client.dbExists('vessyl')) {
