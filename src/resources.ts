@@ -32,15 +32,17 @@ app.post('/', async (c) => {
     }
     let resources = await client.find('vessyl', 'resources', {owner: decoded.username}, {});
     const promises = resources.map(async (resource) => {
-        const name = resource.container.container_id;
-        const command = `docker inspect ${name}`;
-        try {
-            const { stdout } = await execAsync(command);
-            const data = JSON.parse(stdout);
-            resource.container.running = data[0].State.Running;
-            return resource;
-        } catch (err) {
-            console.error(err);
+        if(resource.container.container_id != null) {
+            const name = resource.container.container_id;
+            const command = `docker inspect ${name}`;
+            try {
+                const { stdout } = await execAsync(command);
+                const data = JSON.parse(stdout);
+                resource.container.running = data[0].State.Running;
+                return resource;
+            } catch (err) {
+                console.error(err);
+            }
         }
     });
     
