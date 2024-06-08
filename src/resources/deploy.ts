@@ -50,7 +50,8 @@ app.post('/', async (c) => {
             });
             buildProcess.on('close', async (code) => {
                 if (code !== 0) {
-                    return reject(new Error(`build process exited with code ${code}`));
+                    stream.writeln("Build container exited. Trying to run new container...");
+                    resolve();
                 }
                 let image = repo_name;
                 let command = `docker run --restart always -d --name ${name}`
