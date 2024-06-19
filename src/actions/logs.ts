@@ -25,12 +25,20 @@ app.post('/', async (c) => {
         return c.text('User not found');
     }
     return new Promise((resolve, reject) => {
-      exec(`docker logs ${c.req.param('id')}`, (error, stdout, stderr) => {
-        if (error || stderr.includes('Error') === true) {
-            return resolve(c.text(`${stderr}`))
-        }
-        resolve(c.text(stdout))
-      })
+        // get the startedat time of the container
+        let startedAt = "";
+        exec(`docker inspect ${c.req.param('id')} --format '{{.State.StartedAt}}'`, (error, stdout, stderr) => {
+            if (error || stderr.includes('Error') === true) {
+                return resolve(c.text(`${stderr}`))
+            }
+            startedAt = stdout;
+            exec(`docker logs ${c.req.param('id')} --since ${startedAt}`, (error, stdout, stderr) => {
+                if (error || stderr.includes('Error') === true) {
+                    return resolve(c.text(`${stderr}`))
+                }
+                resolve(c.text(stdout))
+            })
+        })
     })
 });
 
