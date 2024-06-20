@@ -17,9 +17,13 @@ export async function checkForUpdates(uiversion = "") {
     const currentVersion = packageJson.version;
     console.log(`Current version: ${currentVersion}`);
     // Get latest version from GitHub
-    let response: any = "";
+    let json: any = "";
     try {
-        response = await fetch('https://api.github.com/repos/vessylapp/vessyl-worker/releases/latest');
+        const response = await fetch('https://api.github.com/repos/vessylapp/vessyl-worker/releases/latest');
+        json = await response.json();
+        if(json.message) {
+            throw new Error(json.message);
+        }
     }
     catch (e) {
         console.log(`Failed to check for updates: (Rate limit?)`);
@@ -27,8 +31,18 @@ export async function checkForUpdates(uiversion = "") {
     }
     if(uiversion !== "") {
         console.log(`UI Version: ${uiversion}`);
-        let uiResponse = await fetch('https://api.github.com/repos/vessylapp/vessyl-ui/releases/latest');
-        let uiJson = await uiResponse.json();
+        let uiJson: any = "";
+        try {
+            const uiResponse = await fetch('https://api.github.com/repos/vessylapp/vessyl-ui/releases/latest');
+            uiJson = await uiResponse.json();
+            if(uiJson.message) {
+                throw new Error(uiJson.message);
+            }
+        }
+        catch (e) {
+            console.log(`Failed to check for UI updates: (Rate limit?)`);
+            return false;
+        }
         let latestUIVersion = uiJson.tag_name;
         if(uiversion !== latestUIVersion) {
             console.log(`UI Update available: ${latestUIVersion}`);
@@ -36,10 +50,9 @@ export async function checkForUpdates(uiversion = "") {
             return true;
         }
     }
-    const json = await response.json();
     const latestVersion = json.tag_name;
     // Compare versions
-    if (currentVersion !== latestVersion && !checked) {
+    if (currentVersion !== latestVersion) {
         console.log(`Update available: ${latestVersion}`);
         needsUpdate = true;
         return true;
