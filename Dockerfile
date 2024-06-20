@@ -3,4 +3,4 @@ LABEL org.opencontainers.image.source=https://github.com/vessylapp/vessyl-worker
 WORKDIR /app
 COPY . .
 RUN npm install
-ENTRYPOINT ["npm", "run", "dev"]
+ENTRYPOINT ["npm", "run", "start"]

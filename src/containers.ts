@@ -9,6 +9,7 @@ import stop from './actions/stop'
 import remove from './actions/remove'
 import newContainer from './actions/new'
 import deploy from './deploy'
+import infoC from './actions/info'
 
 const app = new Hono()
 
@@ -65,5 +66,6 @@ app.route('/:id/stop', stop)
 app.route('/:id/stats', stats)
 app.route('/:id/logs', logs)
 app.route('/:id/remove', remove)
+app.route('/:id/info', infoC)
 
 export default app

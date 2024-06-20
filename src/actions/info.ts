@@ -24,21 +24,13 @@ app.post('/', async (c) => {
     if (!user) {
         return c.text('User not found');
     }
+    const containerId = c.req.param('id');
     return new Promise((resolve, reject) => {
-        // get the startedat time of the container
-        let startedAt = "";
-        exec(`docker inspect ${c.req.param('id')} --format '{{.State.StartedAt}}'`, (error, stdout, stderr) => {
-            if (error || stderr.includes('Error') === true) {
-                return resolve(c.text(`${stderr}`))
-            }
-            startedAt = stdout;
-            exec(`docker logs ${c.req.param('id')} --since ${startedAt}`, (error, stdout, stderr) => {
-                if (error || stderr.includes('Error') === true) {
-                    return resolve(c.text(`${stderr}`))
-                }
-                resolve(c.text(stdout))
-            })
-        })
+        exec(`docker inspect ${containerId} --format '{{json .}}'`, (error, stdout, stderr) => {
+            const lines = stdout.split('\n').filter(line => line)
+            const json = lines.map(line => JSON.parse(line))[0]
+            resolve(c.json(json))
+        });
     })
 });
 

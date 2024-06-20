@@ -4,15 +4,27 @@ let lastChecked = 0;
 let needsUpdate = false;
 
 export async function checkForUpdates(uiversion = "") {
+    console.log(`Last checked: ${lastChecked}`)
     // Get package.json version
+    // check if its been more than 10 minutes since last check
     if (Date.now() - lastChecked < 600000) {
+        console.log('Skipping update check');
         return needsUpdate;
     }
+    console.log('Checking for updates');
     const packageJsonPath = path.join(__dirname, '../package.json');
     const packageJson = require(packageJsonPath);
     const currentVersion = packageJson.version;
+    console.log(`Current version: ${currentVersion}`);
     // Get latest version from GitHub
-    const response = await fetch('https://api.github.com/repos/vessylapp/vessyl-worker/releases/latest');
+    let response: any = "";
+    try {
+        response = await fetch('https://api.github.com/repos/vessylapp/vessyl-worker/releases/latest');
+    }
+    catch (e) {
+        console.log(`Failed to check for updates: (Rate limit?)`);
+        return false;
+    }
     if(uiversion !== "") {
         console.log(`UI Version: ${uiversion}`);
         let uiResponse = await fetch('https://api.github.com/repos/vessylapp/vessyl-ui/releases/latest');
