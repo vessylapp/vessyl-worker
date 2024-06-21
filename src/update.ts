@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { exec } from 'child_process'
 import jwt from 'jsonwebtoken'
 import MongoService from '../structures/mongodb'
+import {checkForUpdates} from "../structures/checkforupdates";
 
 const app = new Hono()
 
@@ -26,6 +27,10 @@ app.post('/', async (c) => {
     }
     if(user.admin === false || user.admin === undefined) {
         return c.json({error: 'User is not an admin'});
+    }
+    const weNeedToUpdate = await checkForUpdates();
+    if(!weNeedToUpdate) {
+        return c.json({error: 'No updates available'});
     }
     const command = `docker run --rm --pull always -d -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/vessylapp/vessyl-updater:latest`
     return new Promise((resolve, reject) => {
