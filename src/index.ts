@@ -31,6 +31,14 @@ async function startApp() {
     await client.createCollection('vessyl', 'settings');
     await client.insert('vessyl', 'settings', {setup: false});
     await client.insert('vessyl', 'settings', {registration: true});
+
+    // This updates the vessyl.app counter :) You don't have to use this.
+    fetch("https://vessyl.app/api/installs", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
   }
   const app = new Hono()
   app.use('/*', cors())
