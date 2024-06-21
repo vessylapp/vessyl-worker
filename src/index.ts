@@ -6,6 +6,7 @@ import users from './users'
 import status from './status'
 import resources from './resources'
 import update from './update'
+import github from "./github";
 import { checkForUpdates } from '../structures/checkforupdates'
 
 import dotenv from 'dotenv'
@@ -39,6 +40,7 @@ async function startApp() {
   app.route('/status', status);
   app.route('/resources', resources)
   app.route('/update', update)
+  app.route('/github', github);
 
   const port = 8000
   console.log(`Server is running on port ${port}`)

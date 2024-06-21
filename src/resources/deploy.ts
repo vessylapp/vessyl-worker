@@ -38,7 +38,12 @@ app.post('/', async (c) => {
     const repo_name = resource.git_url;
     const cleanName = repo_name.replace(/[^a-zA-Z0-9]/g, '');
     const type = resource.type.toLowerCase();
-    let buildCommand = `docker run --rm --pull always --name DEPLOY-${cleanName} -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/docker.sock:/var/run/docker.sock -e TYPE=${type} -e REPO_NAME=${repo_name} ghcr.io/vessylapp/vessyl-buildenv:latest`
+    const userPat = user.githubPat;
+    let patToAdd = ``;
+    if(userPat) {
+        patToAdd = ` -e GITHUB_PAT=${userPat} -e GITHUB_USERNAME=${user.githubJson.username} `;
+    }
+    let buildCommand = `docker run --rm --pull always --name DEPLOY-${cleanName} -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/docker.sock:/var/run/docker.sock -e TYPE=${type} -e REPO_NAME=${repo_name}${patToAdd}ghcr.io/vessylapp/vessyl-buildenv:latest`
     return streamText(c, (stream) => {
         return new Promise((resolve, reject) => {
             const buildProcess = spawn(buildCommand, { shell: true });
