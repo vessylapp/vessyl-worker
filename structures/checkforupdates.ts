@@ -4,6 +4,10 @@ let lastChecked = 0;
 let needsUpdate = false;
 
 export async function checkForUpdates(uiversion = "") {
+    if(process.env.DEV === true.toString()) {
+        console.log('Skipping update check (DEV mode)');
+        return needsUpdate;
+    }
     console.log(`Last checked: ${lastChecked}`)
     // Get package.json version
     // check if its been more than 10 minutes since last check
