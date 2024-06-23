@@ -16,6 +16,8 @@ app.get('/', async (c) => {
     } else {
         needsUpdate = await checkForUpdates();
     }
+    const packageJson = require('../package.json');
+    dataToSend.version = packageJson.version;
     dataToSend.setup = isSetup ? true : false;
     dataToSend.registration = isRegistration ? true : false;
     dataToSend.needsUpdate = needsUpdate;
