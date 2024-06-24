@@ -7,7 +7,8 @@ const app = new Hono()
 app.post('/', async (c) => {
     const data = await c.req.text(); 
     const body = JSON.parse(data);
-    const {token, uncleansedName, git_url, type} = body;
+    const {token, git_url, type} = body;
+    const uncleansedName = body.name;
     let name = "";
     // Same cleansing as on the client side
     const lowerCaseValue = uncleansedName.toLowerCase();
