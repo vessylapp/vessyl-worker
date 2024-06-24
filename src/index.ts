@@ -15,8 +15,7 @@ dotenv.config()
 import MongoService from '../structures/mongodb'
 
 async function startApp() {
-  await checkForUpdates();
-  const client = MongoService.getInstance();  
+  const client = MongoService.getInstance();
   await client.connect(process.env.MONGO_URI);
   if(!await client.dbExists('vessyl')) {
     await client.createDatabase('vessyl');    
