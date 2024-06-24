@@ -7,7 +7,13 @@ const app = new Hono()
 app.post('/', async (c) => {
     const data = await c.req.text(); 
     const body = JSON.parse(data);
-    const {token, name, git_url, type} = body;
+    const {token, uncleansedName, git_url, type} = body;
+    let name = "";
+    // Same cleansing as on the client side
+    const lowerCaseValue = uncleansedName.toLowerCase();
+    const noSpacesValue = lowerCaseValue.replace(/\s+/g, '-');
+    const cleanValue = noSpacesValue.replace(/[^a-z0-9-]/g, '');
+    name = cleanValue;
     const client = MongoService.getInstance();
     const jwtSecret = await client.findOne('vessyl', 'settings', {jwtSecret: {$exists : true}});
     if (!jwtSecret) {
