@@ -39,7 +39,7 @@ app.post('/', async (c) => {
     const cleanName = repo_name.replace(/[^a-zA-Z0-9]/g, '');
     const type = resource.type.toLowerCase();
     const userPat = user.githubPat;
-    let patToAdd = ``;
+    let patToAdd = ` `;
     if(userPat) {
         patToAdd = ` -e GITHUB_PAT=${userPat} -e GITHUB_USERNAME=${user.githubJson.username} `;
     }
