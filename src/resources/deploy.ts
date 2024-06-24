@@ -44,19 +44,21 @@ app.post('/', async (c) => {
         patToAdd = ` -e GITHUB_PAT=${userPat} -e GITHUB_USERNAME=${user.githubJson.username} `;
     }
     let buildCommand = `docker run --rm --pull always --name DEPLOY-${cleanName} -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/docker.sock:/var/run/docker.sock -e TYPE=${type} -e REPO_NAME=${repo_name}${patToAdd}ghcr.io/vessylapp/vessyl-buildenv:latest`
+    console.log(buildCommand);
     return streamText(c, (stream) => {
         return new Promise((resolve, reject) => {
             const buildProcess = spawn(buildCommand, { shell: true });
             buildProcess.stdout.on('data', (data) => {
+                console.log(data.toString());
                 stream.writeln(data.toString());
             });
             buildProcess.stderr.on('data', (data) => {
+                console.log(data.toString());
                 stream.writeln(data.toString());
             });
             buildProcess.on('close', async (code) => {
                 if (code !== 0) {
-                    stream.writeln("Build container exited. Trying to run new container...");
-                    resolve();
+                    return reject(new Error(`build process exited with code ${code}`));
                 }
                 let image = repo_name;
                 let command = `docker run --restart always -d --name ${name}`
