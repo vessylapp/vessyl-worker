@@ -9,7 +9,7 @@ const app = new Hono()
 app.post('/', async (c) => {
     const data = await c.req.text(); 
     const body = JSON.parse(data);
-    const {token} = body;
+    const {token, uiVersion} = body;
     const client = MongoService.getInstance();
     const jwtSecret = await client.findOne('vessyl', 'settings', {jwtSecret: {$exists : true}});
     if (!jwtSecret) {
@@ -28,7 +28,7 @@ app.post('/', async (c) => {
     if(user.admin === false || user.admin === undefined) {
         return c.json({error: 'User is not an admin'});
     }
-    const weNeedToUpdate = await checkForUpdates();
+    const weNeedToUpdate = await checkForUpdates(uiVersion);
     if(!weNeedToUpdate) {
         return c.json({error: 'No updates available'});
     }
