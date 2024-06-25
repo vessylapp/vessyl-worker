@@ -1,6 +1,7 @@
 import {Hono} from 'hono'
 import MongoService from '../../structures/mongodb'
 import jwt from 'jsonwebtoken'
+import caddyedit from "../../structures/caddyedit";
 
 const app = new Hono()
 
@@ -53,40 +54,9 @@ app.post('/', async (c) => {
     if(!domain) {
         return c.json({success: true, message: 'Resource updated'})
     }
-    // post request to process.env.PROXY_URI/get
-    const getProxyData = await fetch(`${process.env.PROXY_URI}/get`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    });
-    const proxyData = await getProxyData.json();
-    if (proxyData.error) {
-        return c.json({error: 'Failed to update proxy, resource updated'});
-    }
-    // check if domain is already in proxy
-    const domainExists = proxyData.config.includes(domain);
-    if (domainExists) {
-        await fetch(`${process.env.PROXY_URI}/delete`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({domain})
-        });
-    }
+    const caddy = caddyedit.getInstance();
     const portToUse = ports[0].split(':')[0];
-    const addProxyData = await fetch(`${process.env.PROXY_URI}/new`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({domain, port: portToUse})
-    });
-    const addProxyJson = await addProxyData.json();
-    if (addProxyJson.error) {
-        return c.json({error: 'Failed to update proxy, resource updated'});
-    }
+    await caddy.add(domain, portToUse);
     return c.json({success: true, message: 'Resource updated'})
 });
 
