@@ -43,6 +43,13 @@ class Caddy {
         lines.push(`${domain} {`);
         const gateway = await this.getGateway();
         lines.push(`  reverse_proxy ${gateway}:${port}`);
+        lines.push(` `);
+        lines.push(`  handle_errors {`);
+        lines.push(`    @proxy_failed {`);
+        lines.push(`      expression {http.error.status_code} == 502 || {http.error.status_code} == 503 || {http.error.status_code} == 504`);
+        lines.push(`    }`);
+        lines.push(`    respond @proxy_failed "VSYL-002 Resource unavailable" 503`);
+        lines.push(`  }`);
         lines.push('}');
         await fs.promises.writeFile(this.caddyFile, lines.join('\n'));
         // Reload Caddy
