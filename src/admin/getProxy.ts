@@ -29,7 +29,7 @@ app.post('/', async (c) => {
     }
     const proxyUrl = await client.findOne('vessyl', 'settings', {proxyUrl: {$exists : true}});
     if (!proxyUrl) {
-        return c.text('Proxy URL not found');
+        return c.json({error: 'Proxy URL not found'});
     }
     return c.json({proxyUrl: proxyUrl.proxyUrl});
 })
