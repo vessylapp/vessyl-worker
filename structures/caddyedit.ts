@@ -55,29 +55,21 @@ class Caddy {
         // Remove domain from Caddyfile
         const caddyFile = await fs.promises.readFile(this.caddyFile, 'utf-8');
         const lines = caddyFile.split('\n');
-        let start = -1;
-        let end = -1;
-        for (let i = 0; i < lines.length; i++) {
-            if (lines[i].includes(domain)) {
-                start = i;
-                break;
+        const newLines = [];
+        let inDomainBlock = false;
+
+        for (const line of lines) {
+            if (line.includes(domain)) {
+                inDomainBlock = true;
+            }
+            if (!inDomainBlock) {
+                newLines.push(line);
+            }
+            if (line.includes('}')) {
+                inDomainBlock = false;
             }
         }
-        if (start === -1) {
-            return;
-        }
-        for (let i = start; i < lines.length; i++) {
-            if (lines[i].includes('}')) {
-                end = i;
-                break;
-            }
-        }
-        if (end === -1) {
-            return;
-        }
-        lines.splice(start, end - start + 1);
-        await fs.promises.writeFile(this.caddyFile, lines.join('\n'));
-        // Reload Caddy
+        await fs.promises.writeFile(this.caddyFile, newLines.join('\n'));
         await this.reloadCaddy();
     }
 }
