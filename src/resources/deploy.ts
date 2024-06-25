@@ -44,16 +44,13 @@ app.post('/', async (c) => {
         patToAdd = ` -e GITHUB_PAT=${userPat} -e GITHUB_USERNAME=${user.githubJson.username} `;
     }
     let buildCommand = `docker run --rm --pull always --network vessyl-bridge --name DEPLOY-${cleanName} -v /var/run/docker.sock:/var/run/docker.sock -v /var/run/docker.sock:/var/run/docker.sock -e TYPE=${type} -e REPO_NAME=${repo_name}${patToAdd}ghcr.io/vessylapp/vessyl-buildenv:latest`
-    console.log(buildCommand);
     return streamText(c, (stream) => {
         return new Promise((resolve, reject) => {
             const buildProcess = spawn(buildCommand, { shell: true });
             buildProcess.stdout.on('data', (data) => {
-                console.log(data.toString());
                 stream.writeln(data.toString());
             });
             buildProcess.stderr.on('data', (data) => {
-                console.log(data.toString());
                 stream.writeln(data.toString());
             });
             buildProcess.on('close', async (code) => {
