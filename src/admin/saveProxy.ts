@@ -33,6 +33,7 @@ app.post('/', async (c) => {
     let saveUrl;
     if (!isThereAProxy) {
         saveUrl = await client.insert('vessyl', 'settings', {proxyUrl: url});
+        await caddy.add(url, "3000", true);
     } else {
         await caddy.remove(isThereAProxy.proxyUrl, false);
         saveUrl = await client.update('vessyl', 'settings', {proxyUrl: {$exists : true}}, {$set: {proxyUrl: url}});
