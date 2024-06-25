@@ -17,7 +17,6 @@ import caddyedit from "../structures/caddyedit";
 
 async function startApp() {
   const Caddy = caddyedit.getInstance();
-  console.log(await Caddy.getGateway());
   const client = MongoService.getInstance();
   await client.connect(process.env.MONGO_URI);
   if(!await client.dbExists('vessyl')) {

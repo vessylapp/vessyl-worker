@@ -7,7 +7,6 @@ class Caddy {
     public caddyFile: string = '/etc/caddy/Caddyfile';
 
     constructor() {
-        console.log('Caddy created');
     }
 
     async getGateway(): Promise<string> {
