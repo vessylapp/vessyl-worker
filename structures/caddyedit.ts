@@ -31,13 +31,13 @@ class Caddy {
         });
     }
 
-    async add(domain: string, port: string): Promise<void> {
+    async add(domain: string, port: string, reload: boolean = true): Promise<void> {
         console.log(`Adding ${domain} to caddy`);
         // Add domain to Caddyfile
         const caddyFile = await fs.promises.readFile(this.caddyFile, 'utf-8');
         // if domain already exists, call remove() and then add()
         if (caddyFile.includes(domain)) {
-            await this.remove(domain);
+            await this.remove(domain, false);
         }
         const lines = caddyFile.split('\n');
         lines.push(`${domain} {`);
@@ -46,10 +46,12 @@ class Caddy {
         lines.push('}');
         await fs.promises.writeFile(this.caddyFile, lines.join('\n'));
         // Reload Caddy
-        await this.reloadCaddy();
+        if (reload) {
+            await this.reloadCaddy();
+        }
     }
 
-    async remove(domain: string): Promise<void> {
+    async remove(domain: string, reload: boolean = true): Promise<void> {
         console.log(`Removing ${domain} from caddy`);
         // Remove domain from Caddyfile
         const caddyFile = await fs.promises.readFile(this.caddyFile, 'utf-8');
@@ -69,7 +71,10 @@ class Caddy {
             }
         }
         await fs.promises.writeFile(this.caddyFile, newLines.join('\n'));
-        await this.reloadCaddy();
+        // Reload Caddy
+        if (reload) {
+            await this.reloadCaddy();
+        }
     }
 }
 
