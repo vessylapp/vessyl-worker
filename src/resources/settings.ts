@@ -50,17 +50,12 @@ app.post('/', async (c) => {
     if (domain) {
         dataToSet.domain = domain;
     }
-    if(resource.domain !== undefined && resource.domain !== null) {
-        const caddy = caddyedit.getInstance();
-        await caddy.remove(resource.domain, false);
-    }
     await client.update('vessyl', 'resources', {name, owner: decoded.username}, {$set: dataToSet});
     if(!domain) {
         return c.json({success: true, message: 'Resource updated'})
     }
     const caddy = caddyedit.getInstance();
-    const portToUse = ports[0].split(':')[0];
-    await caddy.add(domain, portToUse, true);
+    await caddy.reloadCaddy();
     return c.json({success: true, message: 'Resource updated'})
 });
 

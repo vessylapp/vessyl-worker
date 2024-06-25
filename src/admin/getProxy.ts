@@ -27,11 +27,11 @@ app.post('/', async (c) => {
     if(user.admin === false || user.admin === undefined) {
         return c.json({error: 'User is not an admin'});
     }
-    const proxyUrl = await client.findOne('vessyl', 'settings', {proxyUrl: {$exists : true}});
+    const proxyUrl = await client.findOne('vessyl', 'resources', {name: "vessyl-proxy", hidden: true});
     if (!proxyUrl) {
         return c.json({error: 'Proxy URL not found'});
     }
-    return c.json({proxyUrl: proxyUrl.proxyUrl});
+    return c.json({proxyUrl: proxyUrl.domain});
 })
 
 export default app;

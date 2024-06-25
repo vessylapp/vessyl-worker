@@ -29,16 +29,14 @@ app.post('/', async (c) => {
         return c.json({error: 'User is not an admin'});
     }
     const caddy = caddyedit.getInstance();
-    const isThereAProxy = await client.findOne('vessyl', 'settings', {proxyUrl: {$exists : true}});
+    const isThereAProxy = await client.findOne('vessyl', 'resources', {name: "vessyl-proxy", hidden: true});
     let saveUrl;
     if (!isThereAProxy) {
-        saveUrl = await client.insert('vessyl', 'settings', {proxyUrl: url});
-        await caddy.add(url, "3000", true);
+        saveUrl = await client.insert('vessyl', 'resources', {name: "vessyl-proxy", hidden: true, domain: url, ports: ["3000:3000"]});
     } else {
-        await caddy.remove(isThereAProxy.proxyUrl, false);
-        saveUrl = await client.update('vessyl', 'settings', {proxyUrl: {$exists : true}}, {$set: {proxyUrl: url}});
-        await caddy.add(url, "3000", true);
+        saveUrl = await client.update('vessyl', 'resources', {name: "vessyl-proxy", hidden: true}, {$set: {domain: url}});
     }
+    await caddy.reloadCaddy();
     if (!saveUrl) {
         return c.text('Proxy URL not saved');
     }
