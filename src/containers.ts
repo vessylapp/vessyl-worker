@@ -47,6 +47,10 @@ app.post('/', async (c) => {
             // This makes sure that we don't show the container that runs the API or the container that runs the UI
             return
           }
+          if(container.Names.includes('vp')) {
+            // This makes sure we don't expose the proxy container, it's not in vessyl-bridge network
+            return;
+          }
           jsonToSend.push({
             id: container.ID,
             name: container.Names,
