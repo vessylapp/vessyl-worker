@@ -58,7 +58,7 @@ app.post('/', async (c) => {
                 if (code !== 0) {
                     return reject(new Error(`build process exited with code ${code}`));
                 }
-                let image = repo_name;
+                let image = resourceId;
                 let command = `docker run --restart always -d --name ${name}`
                 if (env) {
                     env.forEach((envVar) => {
