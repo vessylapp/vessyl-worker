@@ -8,7 +8,7 @@ const app = new Hono()
 app.post('/', async (c) => {
     const data = await c.req.text(); 
     const body = JSON.parse(data);
-    const {token, name, git_url, type, env, ports, network, volumes, domain, baseDir} = body;
+    const {token, name, git_url, type, env, ports, network, volumes, domain, baseDir, reload} = body;
     const client = MongoService.getInstance();
     const jwtSecret = await client.findOne('vessyl', 'settings', {jwtSecret: {$exists : true}});
     if (!jwtSecret) {
@@ -57,8 +57,10 @@ app.post('/', async (c) => {
     if(!domain) {
         return c.json({success: true, message: 'Resource updated'})
     }
-    const caddy = caddyedit.getInstance();
-    await caddy.reloadCaddy();
+    if(reload) {
+        const caddy = caddyedit.getInstance();
+        await caddy.reloadCaddy();
+    }
     return c.json({success: true, message: 'Resource updated'})
 });
 

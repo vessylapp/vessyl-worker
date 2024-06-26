@@ -5,6 +5,7 @@ import {exec, spawn} from "child_process";
 import { promisify } from 'util';
 import { streamText } from "hono/streaming";
 const execAsync = promisify(exec);
+import caddyedit from "../../structures/caddyedit";
 
 const app = new Hono()
 
@@ -89,6 +90,8 @@ app.post('/', async (c) => {
                     stream.writeln("Container created with name " + name);
                     await client.update('vessyl', 'resources', {name, owner: decoded.username}, {$set: {container: {container_id: name}}});
                     resolve();
+                    const caddy = caddyedit.getInstance();
+                    await caddy.reloadCaddy();
                 }, 1000);
             });
         }
