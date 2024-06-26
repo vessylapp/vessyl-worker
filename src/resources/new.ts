@@ -30,9 +30,9 @@ app.post('/', async (c) => {
     if (!user) {
         return c.json({error: 'User not found'});
     }
-    const resource = await client.findOne('vessyl', 'resources', {name, owner: decoded.username});
+    const resource = await client.findOne('vessyl', 'resources', {name});
     if (resource) {
-        return c.json({error: 'Resource already exists'})
+        return c.json({error: 'Resource already exists in the database'})
     }
     await client.insert('vessyl', 'resources', {name, git_url, type, owner: decoded.username, container: {running: false}});
     return c.json({success: true, message: 'Resource created'})
