@@ -3,6 +3,7 @@ import MongoService from '../../structures/mongodb'
 import jwt from 'jsonwebtoken'
 import {exec, spawn} from "child_process";
 import { promisify } from 'util';
+import caddyedit from "../../structures/caddyedit";
 const execAsync = promisify(exec);
 
 const app = new Hono()
@@ -36,7 +37,14 @@ app.post('/', async (c) => {
         await execAsync(`docker rm ${containerId}`);
     }
     await client.delete('vessyl', 'resources', {name, owner: decoded.username});
-    return c.json({success: true, message: 'Resource deleted'})
+    if(resource.domain) {
+        c.json({success: true, message: 'Resource deleted'})
+        setTimeout(async () => {
+            await caddyedit.getInstance().reloadCaddy();
+        }, 1000);
+    } else {
+        return c.json({success: true, message: 'Resource deleted'})
+    }
 });
 
 export default app
