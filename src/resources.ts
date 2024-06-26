@@ -5,6 +5,7 @@ import newResource from './resources/new'
 import resourceSettings from './resources/settings'
 import resourceInfo from './resources/info'
 import deployResource from './resources/deploy'
+import deleteResource from './resources/delete'
 import { promisify } from 'util';
 import { exec as execCb } from 'child_process';
 const execAsync = promisify(execCb);
@@ -58,5 +59,6 @@ app.route('/new', newResource)
 app.route('/settings', resourceSettings)
 app.route('/info', resourceInfo)
 app.route('/deploy', deployResource)
+app.route('/delete', deleteResource)
 
 export default app
