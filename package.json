@@ -1,5 +1,5 @@
 {
-  "version": "0.0.58",
+  "version": "0.0.59",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts"

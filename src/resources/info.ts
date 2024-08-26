@@ -31,7 +31,7 @@ app.post('/', async (c) => {
         return c.json({error: 'Resource doesnt exist'})
     }
     const containerId = resource.container.container_id;
-    const command = `docker inspect ${name}`;
+    const command = `docker inspect ${containerId}`;
     try {
         const { stdout } = await execAsync(command);
         const data = JSON.parse(stdout);
