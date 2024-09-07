@@ -10,7 +10,7 @@ const app = new Hono()
 app.post('/', async (c) => {
     const data = await c.req.text();
     const body = JSON.parse(data);
-    const {token, url} = body;
+    const {token} = body;
     const client = MongoService.getInstance();
     const jwtSecret = await client.findOne('vessyl', 'settings', {jwtSecret: {$exists : true}});
     if (!jwtSecret) {
@@ -29,11 +29,11 @@ app.post('/', async (c) => {
     if(user.admin === false || user.admin === undefined) {
         return c.json({error: 'User is not an admin'});
     }
-    c.json({success: 'Restarting proxy...'});
     const restartCommand = `docker restart vp`
     setTimeout(() => {
         const restartProcess = spawn(restartCommand, { shell: true });
     }, 1000);
+    return c.json({success: 'Restarting proxy...'});
 })
 
 export default app;
