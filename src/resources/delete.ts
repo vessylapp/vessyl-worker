@@ -33,8 +33,10 @@ app.post('/', async (c) => {
     }
     const containerId = resource.container.container_id;
     if(containerId !== undefined) {
-        await execAsync(`docker stop ${containerId}`);
-        await execAsync(`docker rm ${containerId}`);
+        try {
+            await execAsync(`docker stop ${containerId}`);
+            await execAsync(`docker rm ${containerId}`);
+        } catch (e) {}
     }
     await client.delete('vessyl', 'resources', {name, owner: decoded.username});
     if(resource.domain) {
