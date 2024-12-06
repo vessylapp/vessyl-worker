@@ -1,9 +1,8 @@
 import { Hono } from "hono";
 import jwt from 'jsonwebtoken';
 import MongoService from "../structures/mongodb";
-import {exec, spawn} from "child_process";
+import {exec} from "child_process";
 import { promisify } from 'util';
-import { streamText } from "hono/streaming";
 const execAsync = promisify(exec);
 
 const app = new Hono();
