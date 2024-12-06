@@ -30,12 +30,9 @@ app.post('/', async (c) => {
     const containerList = containers.stdout.split('\n');
     const ports = [];
     containerList.forEach(container => {
-        const containerPorts = container.split(',');
-        containerPorts.forEach(port => {
-            if (port) {
-                ports.push(port.split('->')[0].trim());
-            }
-        });
+        if (container) {
+            ports.push(container.split('->')[0].split(':')[1].trim());
+        }
     });
     return c.json({ports});
 });
