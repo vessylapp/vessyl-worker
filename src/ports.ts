@@ -30,10 +30,19 @@ app.post('/', async (c) => {
     const containerList = containers.stdout.split('\n');
     const ports = [];
     containerList.forEach(container => {
-        if (container) {
-            ports.push(container.split('->')[0].split(':')[1].trim());
+        const list = container.split(',');
+        for (let i = 0; i < list.length; i++) {
+            const port = list[i].split('->')[0].split(':')[1];
+            if (port) {
+                ports.push(port);
+            } else {
+                if(list[i].includes('/') && !list[i].includes('->')) {
+                    ports.push(list[i].split('/')[0]);
+                }
+            }
         }
     });
+    ports.sort((a, b) => a - b);
     return c.json({ports});
 });
 
