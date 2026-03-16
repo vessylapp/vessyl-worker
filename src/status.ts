@@ -1,27 +1,26 @@
 import { Hono } from 'hono'
 import MongoService from '../structures/mongodb';
 import { checkForUpdates } from '../structures/checkforupdates';
+import { COLLECTIONS, DB_NAME } from './lib/constants';
+import { defineRoute } from './lib/http';
 
 const app = new Hono()
 
-app.get('/', async (c) => {
+app.get('/', defineRoute(async (c) => {
     const {cv} = c.req.query();
     const client = MongoService.getInstance();
-    const dataToSend: any = {};
-    const isSetup = await client.findOne('vessyl', 'settings', {setup: true});
-    const isRegistration = await client.findOne('vessyl', 'settings', {registration: true});
-    let needsUpdate = false;
-    if(cv) {
-        needsUpdate = await checkForUpdates(cv);
-    } else {
-        needsUpdate = await checkForUpdates();
-    }
+    const [isSetup, isRegistration, needsUpdate] = await Promise.all([
+        client.findOne(DB_NAME, COLLECTIONS.settings, { setup: true }),
+        client.findOne(DB_NAME, COLLECTIONS.settings, { registration: true }),
+        checkForUpdates(cv),
+    ]);
     const packageJson = require('../package.json');
-    dataToSend.version = packageJson.version;
-    dataToSend.setup = isSetup ? true : false;
-    dataToSend.registration = isRegistration ? true : false;
-    dataToSend.needsUpdate = needsUpdate;
-    return c.json(dataToSend);
-});
+    return c.json({
+        version: packageJson.version,
+        setup: Boolean(isSetup),
+        registration: Boolean(isRegistration),
+        needsUpdate,
+    });
+}));
 
 export default app

@@ -1,28 +1,13 @@
 import {Hono} from "hono";
-import MongoService from "../../structures/mongodb";
-import jwt from 'jsonwebtoken';
+import { requireUserFromToken } from "../lib/auth";
+import { COLLECTIONS, DB_NAME } from "../lib/constants";
+import { defineRoute, readJsonBody } from "../lib/http";
 
 const app = new Hono();
 
-app.post('/', async (c) => {
-    const data = await c.req.text();
-    const body = JSON.parse(data);
-    const client = MongoService.getInstance();
-    const {token} = body;
-    const jwtSecret = await client.findOne('vessyl', 'settings', {jwtSecret: {$exists : true}});
-    if (!jwtSecret) {
-        return c.json({error: 'JWT Secret not found'});
-    }
-    let decoded : any = {};
-    try {
-        decoded = jwt.verify(token, jwtSecret.jwtSecret);
-    } catch (err) {
-        return c.json({error: 'Invalid token'});
-    }
-    const user = await client.findOne('vessyl', 'users', {username: decoded.username});
-    if (!user) {
-        return c.json({error: 'User not found'});
-    }
+app.post('/', defineRoute(async (c) => {
+    const body = await readJsonBody<{ token?: string }>(c);
+    const { client, user, username } = await requireUserFromToken(body.token);
 
     const userHasGitHub = Boolean(user.githubPat);
     let githubJson = {
@@ -45,7 +30,7 @@ app.post('/', async (c) => {
         const emailJson = await emailResponse.json();
         githubJson.email = emailJson[0].email;
 
-        await client.update('vessyl', 'users', {username: decoded.username}, {$set: {githubJson: githubJson}});
+        await client.update(DB_NAME, COLLECTIONS.users, { username }, { $set: { githubJson } });
     } else {
         if(userHasGithubJson) {
             githubJson = user.githubJson;
@@ -60,6 +45,6 @@ app.post('/', async (c) => {
     }
 
     return c.json(dataToSend);
-});
+}));
 
 export default app;

@@ -1,67 +1,76 @@
 import {Hono} from 'hono'
-import MongoService from '../../structures/mongodb'
-import jwt from 'jsonwebtoken'
 import caddyedit from "../../structures/caddyedit";
+import { requireUserFromToken } from "../lib/auth";
+import { COLLECTIONS, DB_NAME } from "../lib/constants";
+import { defineRoute, readJsonBody } from "../lib/http";
 
 const app = new Hono()
 
-app.post('/', async (c) => {
-    const data = await c.req.text(); 
-    const body = JSON.parse(data);
-    const {token, name, git_url, type, env, ports, network, volumes, domain, baseDir, reload} = body;
-    const client = MongoService.getInstance();
-    const jwtSecret = await client.findOne('vessyl', 'settings', {jwtSecret: {$exists : true}});
-    if (!jwtSecret) {
-        return c.json({error: 'JWT Secret not found'});
-    }
-    let decoded : any = {};
-    try {
-        decoded = jwt.verify(token, jwtSecret.jwtSecret);
-    } catch (err) {
-        return c.json({error: 'Invalid token'});
-    }
-    const user = await client.findOne('vessyl', 'users', {username: decoded.username});
-    if (!user) {
-        return c.json({error: 'User not found'});
-    }
-    const resource = await client.findOne('vessyl', 'resources', {name, owner: decoded.username});
+app.post('/', defineRoute(async (c) => {
+    const body = await readJsonBody<{
+        token?: string;
+        name: string;
+        git_url?: string;
+        type?: string;
+        env?: string[];
+        ports?: string[];
+        network?: string;
+        volumes?: string[];
+        domain?: string;
+        baseDir?: string;
+        reload?: boolean;
+    }>(c);
+    const { client, username } = await requireUserFromToken(body.token);
+
+    const resource = await client.findOne(DB_NAME, COLLECTIONS.resources, {
+        name: body.name,
+        owner: username,
+    });
     if (!resource) {
-        return c.json({error: 'Resource doesnt exist'})
+        return c.json({ error: 'Resource doesnt exist' });
     }
+
     const dataToSet: any = {};
-    if (git_url) {
-        dataToSet.git_url = git_url;
+    if (body.git_url) {
+        dataToSet.git_url = body.git_url;
     }
-    if (type) {
-        dataToSet.type = type;
+    if (body.type) {
+        dataToSet.type = body.type;
     }
-    if (env) {
-        dataToSet.env = env;
+    if (body.env) {
+        dataToSet.env = body.env;
     }
-    if (ports) {
-        dataToSet.ports = ports;
+    if (body.ports) {
+        dataToSet.ports = body.ports;
     }
-    if (network) {
-        dataToSet.network = network;
+    if (body.network) {
+        dataToSet.network = body.network;
     }
-    if (volumes) {
-        dataToSet.volumes = volumes;
+    if (body.volumes) {
+        dataToSet.volumes = body.volumes;
     }
-    if (domain) {
-        dataToSet.domain = domain;
+    if (body.domain) {
+        dataToSet.domain = body.domain;
     }
-    if(baseDir) {
-        dataToSet.baseDir = baseDir;
+    if (body.baseDir) {
+        dataToSet.baseDir = body.baseDir;
     }
-    await client.update('vessyl', 'resources', {name, owner: decoded.username}, {$set: dataToSet});
-    if(!domain) {
-        return c.json({success: true, message: 'Resource updated'})
+    await client.update(DB_NAME, COLLECTIONS.resources, {
+        name: body.name,
+        owner: username,
+    }, {
+        $set: dataToSet,
+    });
+
+    if (!body.domain) {
+        return c.json({ success: true, message: 'Resource updated' });
     }
-    if(reload) {
+
+    if (body.reload) {
         const caddy = caddyedit.getInstance();
         await caddy.reloadCaddy();
     }
-    return c.json({success: true, message: 'Resource updated'})
-});
+    return c.json({ success: true, message: 'Resource updated' });
+}));
 
 export default app

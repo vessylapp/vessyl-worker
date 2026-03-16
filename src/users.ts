@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { exec } from 'child_process'
 import newUser from './users/create'
 import login from './users/login'
 import infoU from './users/info'
