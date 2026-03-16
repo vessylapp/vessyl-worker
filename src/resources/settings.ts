@@ -2,6 +2,7 @@ import {Hono} from 'hono'
 import caddyedit from "../../structures/caddyedit";
 import { requireUserFromToken } from "../lib/auth";
 import { COLLECTIONS, DB_NAME } from "../lib/constants";
+import { normalizeEnvPairs, type EnvPair } from "../lib/env";
 import { defineRoute, readJsonBody } from "../lib/http";
 
 const app = new Hono()
@@ -12,7 +13,7 @@ app.post('/', defineRoute(async (c) => {
         name: string;
         git_url?: string;
         type?: string;
-        env?: string[];
+        env?: EnvPair[] | string[] | string;
         ports?: string[];
         network?: string;
         volumes?: string[];
@@ -37,8 +38,8 @@ app.post('/', defineRoute(async (c) => {
     if (body.type) {
         dataToSet.type = body.type;
     }
-    if (body.env) {
-        dataToSet.env = body.env;
+    if (body.env !== undefined) {
+        dataToSet.env = normalizeEnvPairs(body.env);
     }
     if (body.ports) {
         dataToSet.ports = body.ports;

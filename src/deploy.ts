@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { requireUserFromToken } from "./lib/auth";
 import { buildDockerRunArgs, execDocker, streamDocker } from "./lib/docker";
+import { serializeEnvPairs, type EnvPair } from "./lib/env";
 import { defineRoute, readJsonBody } from "./lib/http";
 
 const app = new Hono();
@@ -9,7 +10,7 @@ const app = new Hono();
 app.post('/', defineRoute(async (c) => {
     const body = await readJsonBody<{
         name: string;
-        env?: string[];
+        env?: EnvPair[] | string[] | string;
         volumes?: string[];
         ports?: string[];
         network?: string;
@@ -42,7 +43,7 @@ app.post('/', defineRoute(async (c) => {
             name: body.name,
             detach: true,
             network: body.network,
-            env: body.env,
+            env: serializeEnvPairs(body.env),
             volumes: body.volumes,
             ports: body.ports,
         });

@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import MongoService from '../../structures/mongodb';
 import { COLLECTIONS, DB_NAME } from './constants';
+import { migrateResourceEnvPairs } from './env';
 
 dotenv.config();
 
@@ -41,4 +42,6 @@ export async function bootstrapApp() {
             },
         }).catch(() => undefined);
     });
+
+    await migrateResourceEnvPairs(client);
 }

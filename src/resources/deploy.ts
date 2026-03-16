@@ -3,6 +3,7 @@ import { streamText } from "hono/streaming";
 import caddyedit from "../../structures/caddyedit";
 import { requireUserFromToken } from "../lib/auth";
 import { COLLECTIONS, DB_NAME } from "../lib/constants";
+import { serializeEnvPairs } from "../lib/env";
 import { buildDockerRunArgs, execDocker, streamDocker } from "../lib/docker";
 import { defineRoute, readJsonBody } from "../lib/http";
 
@@ -57,7 +58,7 @@ app.post('/', defineRoute(async (c) => {
             detach: true,
             restart: 'always',
             network: resource.network,
-            env: resource.env,
+            env: serializeEnvPairs(resource.env),
             volumes: resource.volumes,
             ports: resource.ports,
         });

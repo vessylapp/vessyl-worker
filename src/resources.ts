@@ -6,6 +6,7 @@ import deployResource from './resources/deploy'
 import deleteResource from './resources/delete'
 import { requireUserFromToken } from './lib/auth'
 import { COLLECTIONS, DB_NAME } from './lib/constants'
+import { normalizeEnvPairs } from './lib/env'
 import { defineRoute, readJsonBody } from './lib/http'
 import { getContainerRunningState } from './lib/resources'
 
@@ -19,6 +20,7 @@ app.post('/', defineRoute(async (c) => {
     const hydratedResources = await Promise.all(
         resources.map(async (resource) => ({
             ...resource,
+            env: normalizeEnvPairs(resource.env),
             container: {
                 ...resource.container,
                 running: await getContainerRunningState(resource.container?.container_id),
