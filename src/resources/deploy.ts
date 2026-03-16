@@ -24,6 +24,7 @@ app.post('/', defineRoute(async (c) => {
 
     const resourceId = resource._id.toString();
     const baseDirectory = resource.baseDir ?? '/';
+    const currentContainerId = resource.container?.container_id ?? body.name;
     const buildEnv = [
         `ID=${resourceId}`,
         `TYPE=${resource.type.toLowerCase()}`,
@@ -51,6 +52,13 @@ app.post('/', defineRoute(async (c) => {
             onStdout: (value) => stream.write(value),
             onStderr: (value) => stream.write(value),
         });
+
+        try {
+            await execDocker(['rm', '-f', currentContainerId]);
+            stream.writeln(`Removed existing container ${currentContainerId}`);
+        } catch (error) {
+            // Ignore missing containers so first deploys still work.
+        }
 
         const runArgs = buildDockerRunArgs({
             image: resourceId,

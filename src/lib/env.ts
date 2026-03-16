@@ -20,7 +20,7 @@ function splitLegacyEnvPair(value: string): EnvPair | null {
     }
 
     const key = trimmed.slice(0, separatorIndex).trim();
-    const pairValue = trimmed.slice(separatorIndex + 1).trim();
+    const pairValue = normalizeEnvValue(trimmed.slice(separatorIndex + 1).trim());
 
     if (!key) {
         return null;
@@ -30,6 +30,18 @@ function splitLegacyEnvPair(value: string): EnvPair | null {
         key,
         value: pairValue,
     };
+}
+
+function normalizeEnvValue(value: string) {
+    if (
+        value.length >= 2 &&
+        ((value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'")))
+    ) {
+        return value.slice(1, -1);
+    }
+
+    return value;
 }
 
 function parseLegacyCommaSeparatedEnv(value: string) {
@@ -64,7 +76,7 @@ export function normalizeEnvPairs(value: unknown): EnvPair[] {
 
         if (typeof entry === 'object') {
             const key = String((entry as any).key ?? '').trim();
-            const pairValue = String((entry as any).value ?? '').trim();
+            const pairValue = normalizeEnvValue(String((entry as any).value ?? '').trim());
 
             if (!key) {
                 return [];

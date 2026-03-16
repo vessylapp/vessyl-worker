@@ -38,6 +38,13 @@ app.post('/', defineRoute(async (c) => {
             onStderr: (value) => stream.write(value),
         });
 
+        try {
+            await execDocker(['rm', '-f', body.name]);
+            stream.writeln(`Removed existing container ${body.name}`);
+        } catch (error) {
+            // Ignore missing containers so first deploys still work.
+        }
+
         const runArgs = buildDockerRunArgs({
             image: body.repo_name,
             name: body.name,
