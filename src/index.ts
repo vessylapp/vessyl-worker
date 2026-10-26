@@ -10,6 +10,7 @@ import github from "./github";
 import admin from "./admin";
 import ports from "./ports";
 import builds from "./builds";
+import access from "./access";
 import { bootstrapApp } from './lib/bootstrap';
 
 async function startApp() {
@@ -27,6 +28,7 @@ async function startApp() {
   app.route('/admin', admin);
   app.route('/ports', ports);
   app.route('/builds', builds);
+  app.route('/access', access);
 
   const port = 8000
   console.log(`Server is running on port ${port}`)

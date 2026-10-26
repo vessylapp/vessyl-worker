@@ -1,6 +1,8 @@
 import MongoService from '../../structures/mongodb';
 import { COLLECTIONS, DB_NAME } from './constants';
 
+export const TOKEN_EXPIRY = '2h';
+
 export function generateRandomString(length: number) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';

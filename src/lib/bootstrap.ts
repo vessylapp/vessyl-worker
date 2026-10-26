@@ -31,6 +31,7 @@ export async function bootstrapApp() {
 
     await ensureCollection(COLLECTIONS.resources);
     await ensureCollection(COLLECTIONS.users);
+    await ensureCollection(COLLECTIONS.accessLogs);
     await ensureCollection(COLLECTIONS.settings, async (mongo) => {
         await mongo.insert(DB_NAME, COLLECTIONS.settings, { setup: false });
         await mongo.insert(DB_NAME, COLLECTIONS.settings, { registration: true });

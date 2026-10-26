@@ -35,6 +35,11 @@ export async function requireUserFromToken(token: string | undefined, options: A
         throw authError('Invalid token', 401, errorType);
     }
 
+    // Tokens issued before expiry was introduced have no exp claim and would never expire.
+    if (typeof decoded?.exp !== 'number') {
+        throw authError('Invalid token', 401, errorType);
+    }
+
     const user = await client.findOne(DB_NAME, COLLECTIONS.users, { username: decoded.username });
     if (!user) {
         throw authError('User not found', 404, errorType);

@@ -4,12 +4,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { COLLECTIONS, DB_NAME } from "../lib/constants";
 import { defineRoute, readJsonBody } from "../lib/http";
-import { getOrCreateJwtSecret } from "../lib/security";
+import { getOrCreateJwtSecret, TOKEN_EXPIRY } from "../lib/security";
+import { recordAccess, type ClientInfo } from "../lib/access";
 
 const app = new Hono();
 
 app.post('/', defineRoute(async (c) => {
-    const body = await readJsonBody<{ username: string; password: string }>(c);
+    const body = await readJsonBody<{ username: string; password: string; client?: ClientInfo }>(c);
     const client = MongoService.getInstance();
 
     const checkIfRegistrationEnabled = await client.findOne(DB_NAME, COLLECTIONS.settings, { registration: true });
@@ -32,7 +33,8 @@ app.post('/', defineRoute(async (c) => {
     await client.insert(DB_NAME, COLLECTIONS.users, { username, password: hashedPassword, ...customData });
 
     const jwtSecret = await getOrCreateJwtSecret();
-    const token = jwt.sign({ username }, jwtSecret);
+    const token = jwt.sign({ username }, jwtSecret, { expiresIn: TOKEN_EXPIRY });
+    await recordAccess(client, c, body.client, { type: 'register', username, success: true });
     return c.json({ token });
 }));
 
