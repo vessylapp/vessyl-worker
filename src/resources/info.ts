@@ -16,6 +16,8 @@ app.post('/', defineRoute(async (c) => {
         owner: username,
     });
 
+    delete resource.env;
+
     if (!resource) {
         return c.json({ error: 'Resource doesnt exist' });
     }

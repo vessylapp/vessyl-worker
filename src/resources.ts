@@ -4,6 +4,7 @@ import resourceSettings from './resources/settings'
 import resourceInfo from './resources/info'
 import deployResource from './resources/deploy'
 import deleteResource from './resources/delete'
+import getEnv from './resources/getenv'
 import { requireUserFromToken } from './lib/auth'
 import { COLLECTIONS, DB_NAME } from './lib/constants'
 import { normalizeEnvPairs } from './lib/env'
@@ -17,10 +18,12 @@ app.post('/', defineRoute(async (c) => {
     const { client, username } = await requireUserFromToken(body.token);
 
     const resources = await client.find(DB_NAME, COLLECTIONS.resources, { owner: username }, {});
+    for (const resource of resources) {
+        delete resource.env;
+    }
     const hydratedResources = await Promise.all(
         resources.map(async (resource) => ({
             ...resource,
-            env: normalizeEnvPairs(resource.env),
             container: {
                 ...resource.container,
                 running: await getContainerRunningState(resource.container?.container_id),
@@ -36,5 +39,6 @@ app.route('/settings', resourceSettings)
 app.route('/info', resourceInfo)
 app.route('/deploy', deployResource)
 app.route('/delete', deleteResource)
+app.route('/getenv', getEnv)
 
 export default app
